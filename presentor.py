@@ -39,10 +39,7 @@ class ImageFlowBox(Gtk.FlowBox):
     def on_rotate_clicked(self, button, direction):
         image = self.get_selected_children()[0].get_child().get_center_widget()
         pixbuf = image.get_pixbuf()
-        if direction == Gtk.DirectionType.LEFT:
-            rotated = pixbuf.rotate_simple(GdkPixbuf.PixbufRotation.COUNTERCLOCKWISE)
-        else:
-            rotated = pixbuf.rotate_simple(GdkPixbuf.PixbufRotation.CLOCKWISE)
+        rotated = pixbuf.rotate_simple(direction)
         image.set_from_pixbuf(rotated)
 
     def on_item_activated(self,flowbox,child,window):
@@ -69,9 +66,9 @@ class ImageFlowBox(Gtk.FlowBox):
 
     def handle_key_release(self, widget, event, data=None):
         if event.keyval == Gdk.KEY_q:
-            self.on_rotate_clicked(None, Gtk.DirectionType.LEFT)
+            self.on_rotate_clicked(None, GdkPixbuf.PixbufRotation.COUNTERCLOCKWISE)
         elif event.keyval == Gdk.KEY_w:
-            self.on_rotate_clicked(None, Gtk.DirectionType.RIGHT)
+            self.on_rotate_clicked(None, GdkPixbuf.PixbufRotation.CLOCKWISE)
         elif event.keyval == Gdk.KEY_Escape:
             Gtk.main_quit()
 
@@ -94,8 +91,8 @@ class FlowBoxWindow(Gtk.Window):
         actionbar.pack_start(rotate_left)
         actionbar.pack_start(rotate_right)
 
-        rotate_left.connect('clicked',flowbox.on_rotate_clicked,Gtk.DirectionType.LEFT)
-        rotate_right.connect('clicked',flowbox.on_rotate_clicked,Gtk.DirectionType.RIGHT)
+        rotate_left.connect('clicked',flowbox.on_rotate_clicked,GdkPixbuf.PixbufRotation.COUNTERCLOCKWISE)
+        rotate_right.connect('clicked',flowbox.on_rotate_clicked,GdkPixbuf.PixbufRotation.CLOCKWISE)
         flowbox.connect('child_activated',flowbox.on_item_activated,self)
 
         self.connect("delete-event", Gtk.main_quit)
