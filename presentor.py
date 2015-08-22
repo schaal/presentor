@@ -14,6 +14,7 @@ class ImageBox(Gtk.Box):
 
         self.set_orientation(Gtk.Orientation.VERTICAL)
         self.set_spacing(5)
+        self.set_size_request(500,500)
 
         self.image_file = Gio.File.new_for_path(image_path)
         self.image_widget = Gtk.Image.new()
