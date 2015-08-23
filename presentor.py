@@ -52,8 +52,11 @@ class ImageFlowBox(Gtk.FlowBox):
         elif event.keyval == Gdk.KEY_Escape:
             Gtk.main_quit()
 
+    def clear(self):
+        self.foreach(self.remove)
+
 class FlowBoxWindow(Gtk.Window):
-    def __init__(self,matches):
+    def __init__(self, path):
         Gtk.Window.__init__(self, title="Fotostudio Schaal")
 
         self.maximize()
@@ -62,7 +65,7 @@ class FlowBoxWindow(Gtk.Window):
         scrolled.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
 
         mainbox = Gtk.Box.new(Gtk.Orientation.VERTICAL, 5)
-        flowbox = ImageFlowBox()
+        self.flowbox = ImageFlowBox()
         actionbar = Gtk.ActionBar.new()
 
         rotate_left = Gtk.Button.new_from_icon_name('object-rotate-left',Gtk.IconSize.BUTTON)
@@ -71,24 +74,28 @@ class FlowBoxWindow(Gtk.Window):
         actionbar.pack_start(rotate_left)
         actionbar.pack_start(rotate_right)
 
-        rotate_left.connect('clicked',flowbox.on_rotate_clicked,GdkPixbuf.PixbufRotation.COUNTERCLOCKWISE)
-        rotate_right.connect('clicked',flowbox.on_rotate_clicked,GdkPixbuf.PixbufRotation.CLOCKWISE)
-        flowbox.connect('child_activated',self.on_item_activated)
+        rotate_left.connect('clicked',self.flowbox.on_rotate_clicked,GdkPixbuf.PixbufRotation.COUNTERCLOCKWISE)
+        rotate_right.connect('clicked',self.flowbox.on_rotate_clicked,GdkPixbuf.PixbufRotation.CLOCKWISE)
+        self.flowbox.connect('child_activated',self.on_item_activated)
 
         self.connect("delete-event", Gtk.main_quit)
-        self.connect("key-release-event", flowbox.handle_key_release)
+        self.connect("key-release-event", self.flowbox.handle_key_release)
 
-        for image_path in matches:
-            imagebox = ImageBox(image_path)
-            flowbox.add(imagebox)
+        self._load_images(path)
 
-        scrolled.add(flowbox)
+        scrolled.add(self.flowbox)
 
         mainbox.pack_start(scrolled, True, True, 0)
         mainbox.pack_end(actionbar, False, True, 0)
 
         self.add(mainbox)
         self.show_all()
+
+    def _load_images(self, path):
+        self.flowbox.clear()
+        for image_path in self.list_image_files(path):
+            imagebox = ImageBox(image_path)
+            self.flowbox.add(imagebox)
 
     def on_item_activated(self, flowbox, child):
         image_file = child.get_child().image_file
@@ -112,11 +119,13 @@ class FlowBoxWindow(Gtk.Window):
                 appinfo.launch([image_file], None)
         dialog.destroy()
 
-if len(sys.argv) == 2:
-    matches = []
-    for root, dirnames, filenames in os.walk(sys.argv[1]):
-        matches.extend([os.path.join(root, filename) for filename in filenames if filename.lower().endswith(".jpg")])
+    def list_image_files(self, path):
+        matches = []
+        for root, dirnames, filenames in os.walk(path):
+            matches.extend([os.path.join(root, filename) for filename in filenames if filename.lower().endswith(".jpg")])
+        return matches
 
-    win = FlowBoxWindow(matches)
+if len(sys.argv) == 2:
+    win = FlowBoxWindow(sys.argv[1])
 
     Gtk.main()
