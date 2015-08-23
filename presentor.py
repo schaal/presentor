@@ -44,28 +44,6 @@ class ImageFlowBox(Gtk.FlowBox):
         rotated = pixbuf.rotate_simple(direction)
         image.set_from_pixbuf(rotated)
 
-    def on_item_activated(self,flowbox,child,window):
-        image_file = child.get_child().image_file
-
-        dialog = Gtk.AppChooserDialog.new(window,Gtk.DialogFlags.MODAL,image_file)
-
-        widget = dialog.get_widget()
-        widget.set_show_default(True)
-
-        content_type = widget.get_content_type()
-
-        default_app_info = Gio.app_info_get_default_for_type(content_type, False)
-
-        if default_app_info is not None:
-            default_app_info.launch([image_file], None)
-        else:
-            response = dialog.run()
-            if response == Gtk.ResponseType.OK:
-                appinfo = dialog.get_app_info()
-                appinfo.set_as_default_for_type(content_type)
-                appinfo.launch([image_file], None)
-        dialog.destroy()
-
     def handle_key_release(self, widget, event, data=None):
         if event.keyval == Gdk.KEY_q:
             self.on_rotate_clicked(None, GdkPixbuf.PixbufRotation.COUNTERCLOCKWISE)
@@ -95,7 +73,7 @@ class FlowBoxWindow(Gtk.Window):
 
         rotate_left.connect('clicked',flowbox.on_rotate_clicked,GdkPixbuf.PixbufRotation.COUNTERCLOCKWISE)
         rotate_right.connect('clicked',flowbox.on_rotate_clicked,GdkPixbuf.PixbufRotation.CLOCKWISE)
-        flowbox.connect('child_activated',flowbox.on_item_activated,self)
+        flowbox.connect('child_activated',self.on_item_activated)
 
         self.connect("delete-event", Gtk.main_quit)
         self.connect("key-release-event", flowbox.handle_key_release)
@@ -111,6 +89,28 @@ class FlowBoxWindow(Gtk.Window):
 
         self.add(mainbox)
         self.show_all()
+
+    def on_item_activated(self, flowbox, child):
+        image_file = child.get_child().image_file
+
+        dialog = Gtk.AppChooserDialog.new(self,Gtk.DialogFlags.MODAL,image_file)
+
+        widget = dialog.get_widget()
+        widget.set_show_default(True)
+
+        content_type = widget.get_content_type()
+
+        default_app_info = Gio.app_info_get_default_for_type(content_type, False)
+
+        if default_app_info is not None:
+            default_app_info.launch([image_file], None)
+        else:
+            response = dialog.run()
+            if response == Gtk.ResponseType.OK:
+                appinfo = dialog.get_app_info()
+                appinfo.set_as_default_for_type(content_type)
+                appinfo.launch([image_file], None)
+        dialog.destroy()
 
 if len(sys.argv) == 2:
     matches = []
