@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 
-import os,sys
+import os,sys,subprocess
 from gi.repository import Gtk, GdkPixbuf, Gio, Gdk
 
 SIZE = 500
@@ -44,13 +44,13 @@ class ImageFlowBox(Gtk.FlowBox):
         rotated = pixbuf.rotate_simple(direction)
         image.set_from_pixbuf(rotated)
 
-    def handle_key_release(self, widget, event, data=None):
+    def handle_key_release(self, widget, event, window):
         if event.keyval == Gdk.KEY_q:
             self.on_rotate_clicked(None, GdkPixbuf.PixbufRotation.COUNTERCLOCKWISE)
         elif event.keyval == Gdk.KEY_w:
             self.on_rotate_clicked(None, GdkPixbuf.PixbufRotation.CLOCKWISE)
         elif event.keyval == Gdk.KEY_Escape:
-            Gtk.main_quit()
+            window._cleanup()
 
     def clear(self):
         self.foreach(self.remove)
@@ -70,16 +70,21 @@ class FlowBoxWindow(Gtk.Window):
 
         rotate_left = Gtk.Button.new_from_icon_name('object-rotate-left',Gtk.IconSize.BUTTON)
         rotate_right = Gtk.Button.new_from_icon_name('object-rotate-right',Gtk.IconSize.BUTTON)
+        choose_folder = Gtk.FileChooserButton.new('Ordner auswählen', Gtk.FileChooserAction.SELECT_FOLDER)
+        choose_folder.set_current_folder(path)
 
         actionbar.pack_start(rotate_left)
         actionbar.pack_start(rotate_right)
+        actionbar.pack_start(choose_folder)
 
         rotate_left.connect('clicked',self.flowbox.on_rotate_clicked,GdkPixbuf.PixbufRotation.COUNTERCLOCKWISE)
         rotate_right.connect('clicked',self.flowbox.on_rotate_clicked,GdkPixbuf.PixbufRotation.CLOCKWISE)
         self.flowbox.connect('child_activated',self.on_item_activated)
+        choose_folder.connect('file-set', self.on_file_set)
 
-        self.connect("delete-event", Gtk.main_quit)
-        self.connect("key-release-event", self.flowbox.handle_key_release)
+        self.connect("destroy-event", self._cleanup)
+        self.connect("delete-event", self._cleanup)
+        self.connect("key-release-event", self.flowbox.handle_key_release, self)
 
         self._load_images(path)
 
@@ -96,6 +101,15 @@ class FlowBoxWindow(Gtk.Window):
         for image_path in self.list_image_files(path):
             imagebox = ImageBox(image_path)
             self.flowbox.add(imagebox)
+
+    def _cleanup(self, widget=None, event=None):
+        print("cleanup")
+        subprocess.call(["udisksctl","unmount","--block-device","/dev/sdb1"])
+        subprocess.call(["udisksctl","power-off","--block-device","/dev/sdb"])
+        Gtk.main_quit()
+
+    def on_file_set(self, choose_folder):
+        print(choose_folder.get_filename())
 
     def on_item_activated(self, flowbox, child):
         image_file = child.get_child().image_file
