@@ -1,9 +1,11 @@
 #!/usr/bin/python3
 
-import os,sys,subprocess
+import os,sys,subprocess,notify2
+from subprocess import CalledProcessError
 from gi.repository import Gtk, GdkPixbuf, Gio, Gdk
 
 SIZE = 500
+MAX_IMAGE_COUNT = 100
 
 class ImageBox(Gtk.Box):
     def _set_image_callback(self, source_object, res):
@@ -56,7 +58,7 @@ class ImageFlowBox(Gtk.FlowBox):
         self.foreach(self.remove)
 
 class FlowBoxWindow(Gtk.Window):
-    def __init__(self, path):
+    def __init__(self, path=None):
         Gtk.Window.__init__(self, title="Fotostudio Schaal")
 
         self.maximize()
@@ -71,7 +73,6 @@ class FlowBoxWindow(Gtk.Window):
         rotate_left = Gtk.Button.new_from_icon_name('object-rotate-left',Gtk.IconSize.BUTTON)
         rotate_right = Gtk.Button.new_from_icon_name('object-rotate-right',Gtk.IconSize.BUTTON)
         choose_folder = Gtk.FileChooserButton.new('Ordner auswählen', Gtk.FileChooserAction.SELECT_FOLDER)
-        choose_folder.set_current_folder(path)
 
         actionbar.pack_start(rotate_left)
         actionbar.pack_start(rotate_right)
@@ -86,7 +87,9 @@ class FlowBoxWindow(Gtk.Window):
         self.connect("delete-event", self._cleanup)
         self.connect("key-release-event", self.flowbox.handle_key_release, self)
 
-        self._load_images(path)
+        if path is not None:
+            choose_folder.set_current_folder(path)
+            self._load_images(path)
 
         scrolled.add(self.flowbox)
 
@@ -101,15 +104,21 @@ class FlowBoxWindow(Gtk.Window):
         for image_path in self.list_image_files(path):
             imagebox = ImageBox(image_path)
             self.flowbox.add(imagebox)
+        self.flowbox.show_all()
 
     def _cleanup(self, widget=None, event=None):
-        print("cleanup")
-        subprocess.call(["udisksctl","unmount","--block-device","/dev/sdb1"])
-        subprocess.call(["udisksctl","power-off","--block-device","/dev/sdb"])
-        Gtk.main_quit()
+        try:
+            subprocess.check_call(["udisksctl","unmount","--block-device","/dev/sdb1"])
+            subprocess.check_call(["udisksctl","power-off","--block-device","/dev/sdb"])
+            show_notification("Speicherkarte wurde gesichert","Sie können die Speicherkarte nun sicher entfernen","dialog-information")
+        except CalledProcessError as e:
+            show_notification("Speicherkarte konnte nicht sicher entfernt werden", "Bitte entfernen Sie die Speicherkarte, bevor Sie sie entnehmen", "dialog-error")
+        finally:
+            os.sync()
+            Gtk.main_quit()
 
     def on_file_set(self, choose_folder):
-        print(choose_folder.get_filename())
+        self._load_images(choose_folder.get_filename())
 
     def on_item_activated(self, flowbox, child):
         image_file = child.get_child().image_file
@@ -137,9 +146,19 @@ class FlowBoxWindow(Gtk.Window):
         matches = []
         for root, dirnames, filenames in os.walk(path):
             matches.extend([os.path.join(root, filename) for filename in filenames if filename.lower().endswith(".jpg")])
-        return matches
+            if len(matches) >= MAX_IMAGE_COUNT:
+                break
+        return matches[:MAX_IMAGE_COUNT]
+
+def show_notification(summary, body=None, icon=None):
+    n = notify2.Notification(summary, body, icon)
+    n.show()
+
+notify2.init("Fotostudio Schaal")
 
 if len(sys.argv) == 2:
     win = FlowBoxWindow(sys.argv[1])
+else:
+    win = FlowBoxWindow()
 
     Gtk.main()
