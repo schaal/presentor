@@ -101,10 +101,18 @@ class FlowBoxWindow(Gtk.Window):
 
     def _load_images(self, path):
         self.flowbox.clear()
-        for image_path in self.list_image_files(path):
-            imagebox = ImageBox(image_path)
-            self.flowbox.add(imagebox)
+        self._load_images_loop(path)
         self.flowbox.show_all()
+
+    def _load_images_loop(self, path):
+        image_count = 0
+        for root, dirnames, filenames in os.walk(path):
+            for image_path in [os.path.join(root,filename) for filename in filenames if filename.lower().endswith(".jpg")]:
+                imagebox = ImageBox(image_path)
+                self.flowbox.add(imagebox)
+                image_count += 1
+                if image_count >= MAX_IMAGE_COUNT:
+                    return
 
     def _cleanup(self, widget=None, event=None):
         try:
@@ -142,14 +150,6 @@ class FlowBoxWindow(Gtk.Window):
                 appinfo.launch([image_file], None)
         dialog.destroy()
 
-    def list_image_files(self, path):
-        matches = []
-        for root, dirnames, filenames in os.walk(path):
-            matches.extend([os.path.join(root, filename) for filename in filenames if filename.lower().endswith(".jpg")])
-            if len(matches) >= MAX_IMAGE_COUNT:
-                break
-        return matches[:MAX_IMAGE_COUNT]
-
 def show_notification(summary, body=None, icon=None):
     n = notify2.Notification(summary, body, icon)
     n.show()
@@ -161,4 +161,4 @@ if len(sys.argv) == 2:
 else:
     win = FlowBoxWindow()
 
-    Gtk.main()
+Gtk.main()
