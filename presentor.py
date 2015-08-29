@@ -74,22 +74,18 @@ class FlowBoxWindow(Gtk.Window):
 
         rotate_left = Gtk.Button.new_from_icon_name('object-rotate-left',Gtk.IconSize.BUTTON)
         rotate_right = Gtk.Button.new_from_icon_name('object-rotate-right',Gtk.IconSize.BUTTON)
-        choose_folder = Gtk.FileChooserButton.new('Ordner auswählen', Gtk.FileChooserAction.SELECT_FOLDER)
+        self.choose_folder = Gtk.FileChooserButton.new('Ordner auswählen', Gtk.FileChooserAction.SELECT_FOLDER)
 
         actionbar.pack_start(rotate_left)
         actionbar.pack_start(rotate_right)
-        actionbar.pack_start(choose_folder)
+        actionbar.pack_start(self.choose_folder)
 
         rotate_left.connect('clicked',self.flowbox.on_rotate_clicked,GdkPixbuf.PixbufRotation.COUNTERCLOCKWISE)
         rotate_right.connect('clicked',self.flowbox.on_rotate_clicked,GdkPixbuf.PixbufRotation.CLOCKWISE)
         self.flowbox.connect('child_activated',self.on_item_activated)
-        choose_folder.connect('file-set', self.on_file_set)
+        self.choose_folder.connect('file-set', self.on_file_set)
 
         self.connect("key-release-event", self.flowbox.handle_key_release, self)
-
-        if path is not None:
-            choose_folder.set_current_folder_file(path[0])
-            self._load_images(path[0])
 
         scrolled.add(self.flowbox)
 
@@ -101,6 +97,7 @@ class FlowBoxWindow(Gtk.Window):
 
     def _load_images(self, path):
         self.flowbox.clear()
+        self.choose_folder.set_current_folder_file(path)
         self._load_images_loop(path)
         self.flowbox.show_all()
 
