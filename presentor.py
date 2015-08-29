@@ -97,7 +97,7 @@ class FlowBoxWindow(Gtk.ApplicationWindow):
 
     def _load_images(self, path):
         self.flowbox.clear()
-        self.choose_folder.set_current_folder_file(path)
+        self.choose_folder.set_file(path)
         self._load_images_loop(path)
         self.flowbox.show_all()
 
@@ -112,7 +112,7 @@ class FlowBoxWindow(Gtk.ApplicationWindow):
                     return
 
     def on_file_set(self, choose_folder):
-        self._load_images(choose_folder.get_filename())
+        self._load_images(choose_folder.get_file())
 
     def on_item_activated(self, flowbox, child):
         image_file = child.get_child().image_file
