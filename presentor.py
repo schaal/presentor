@@ -59,9 +59,9 @@ class ImageFlowBox(Gtk.FlowBox):
     def clear(self):
         self.foreach(self.remove)
 
-class FlowBoxWindow(Gtk.Window):
-    def __init__(self, path=None):
-        Gtk.Window.__init__(self, title="Fotostudio Schaal", type=Gtk.WindowType.TOPLEVEL)
+class FlowBoxWindow(Gtk.ApplicationWindow):
+    def __init__(self, application):
+        Gtk.ApplicationWindow.__init__(self, application=application, title="Fotostudio Schaal", type=Gtk.WindowType.TOPLEVEL)
 
         self.maximize()
 
@@ -146,7 +146,7 @@ class PresentorApplication(Gtk.Application):
 
     def on_startup(self, data=None):
         notify2.init("Fotostudio Schaal")
-        self.win = FlowBoxWindow()
+        self.win = FlowBoxWindow(self)
         self.add_window(self.win)
 
     def on_activate(self, data=None):
