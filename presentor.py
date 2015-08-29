@@ -8,7 +8,7 @@ APP_ID = "de.fotoschaal.presentor"
 
 SIZE = 500
 MAX_IMAGE_COUNT = 100
-PARTITION = '/dev/sdf1'
+PARTITION = '/dev/sda1'
 
 class ImageBox(Gtk.Box):
     def _set_image_callback(self, source_object, res):
@@ -93,7 +93,8 @@ class FlowBoxWindow(Gtk.ApplicationWindow):
         mainbox.pack_end(actionbar, False, True, 0)
 
         self.add(mainbox)
-        self.show_all()
+        self.flowbox.grab_focus()
+        #self.show_all()
 
     def _load_images(self, path):
         self.flowbox.clear()
