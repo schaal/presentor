@@ -9,8 +9,7 @@ MAX_IMAGE_COUNT = 100
 
 class ImageBox(Gtk.Box):
     def _set_image_callback(self, source_object, res):
-        pixbuf = GdkPixbuf.Pixbuf.new_from_stream_finish(res)
-        pixbuf.apply_embedded_orientation()
+        pixbuf = GdkPixbuf.Pixbuf.new_from_stream_finish(res).apply_embedded_orientation()
         self.image_widget.set_from_pixbuf(pixbuf)
 
     def __init__(self, image_path):
