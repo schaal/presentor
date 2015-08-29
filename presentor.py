@@ -6,6 +6,7 @@ from gi.repository import Gtk, GdkPixbuf, Gio, Gdk
 
 SIZE = 500
 MAX_IMAGE_COUNT = 100
+PARTITION = '/dev/sdf1'
 
 class ImageBox(Gtk.Box):
     def _set_image_callback(self, source_object, res):
@@ -115,7 +116,7 @@ class FlowBoxWindow(Gtk.Window):
 
     def _cleanup(self, widget=None, event=None):
         try:
-            subprocess.check_call(["udisksctl","unmount","--block-device","/dev/sdb1"])
+            subprocess.check_call(["udisksctl","unmount","--block-device",PARTITION])
             show_notification("Speicherkarte wurde gesichert","Sie können die Speicherkarte nun sicher entfernen","dialog-information")
         except CalledProcessError as e:
             show_notification("Speicherkarte konnte nicht sicher entfernt werden", "Bitte entfernen Sie die Speicherkarte, bevor Sie sie entnehmen", "dialog-error")
