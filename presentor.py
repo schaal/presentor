@@ -4,6 +4,8 @@ import os,sys,subprocess,notify2
 from subprocess import CalledProcessError
 from gi.repository import Gtk, GdkPixbuf, Gio, Gdk
 
+APP_ID = "de.fotoschaal.presentor"
+
 SIZE = 500
 MAX_IMAGE_COUNT = 100
 PARTITION = '/dev/sdf1'
@@ -52,14 +54,14 @@ class ImageFlowBox(Gtk.FlowBox):
         elif event.keyval == Gdk.KEY_w:
             self.on_rotate_clicked(None, GdkPixbuf.PixbufRotation.CLOCKWISE)
         elif event.keyval == Gdk.KEY_Escape:
-            window._cleanup()
+            window.get_application().quit()
 
     def clear(self):
         self.foreach(self.remove)
 
 class FlowBoxWindow(Gtk.Window):
     def __init__(self, path=None):
-        Gtk.Window.__init__(self, title="Fotostudio Schaal")
+        Gtk.Window.__init__(self, title="Fotostudio Schaal", type=Gtk.WindowType.TOPLEVEL)
 
         self.maximize()
 
@@ -83,13 +85,11 @@ class FlowBoxWindow(Gtk.Window):
         self.flowbox.connect('child_activated',self.on_item_activated)
         choose_folder.connect('file-set', self.on_file_set)
 
-        self.connect("destroy-event", self._cleanup)
-        self.connect("delete-event", self._cleanup)
         self.connect("key-release-event", self.flowbox.handle_key_release, self)
 
         if path is not None:
-            choose_folder.set_current_folder(path)
-            self._load_images(path)
+            choose_folder.set_current_folder_file(path[0])
+            self._load_images(path[0])
 
         scrolled.add(self.flowbox)
 
@@ -106,23 +106,13 @@ class FlowBoxWindow(Gtk.Window):
 
     def _load_images_loop(self, path):
         image_count = 0
-        for root, dirnames, filenames in os.walk(path):
+        for root, dirnames, filenames in os.walk(path.get_path()):
             for image_path in [os.path.join(root,filename) for filename in filenames if filename.lower().endswith(".jpg")]:
                 imagebox = ImageBox(image_path)
                 self.flowbox.add(imagebox)
                 image_count += 1
                 if image_count >= MAX_IMAGE_COUNT:
                     return
-
-    def _cleanup(self, widget=None, event=None):
-        try:
-            subprocess.check_call(["udisksctl","unmount","--block-device",PARTITION])
-            show_notification("Speicherkarte wurde gesichert","Sie können die Speicherkarte nun sicher entfernen","dialog-information")
-        except CalledProcessError as e:
-            show_notification("Speicherkarte konnte nicht sicher entfernt werden", "Bitte entfernen Sie die Speicherkarte, bevor Sie sie entnehmen", "dialog-error")
-        finally:
-            os.sync()
-            Gtk.main_quit()
 
     def on_file_set(self, choose_folder):
         self._load_images(choose_folder.get_filename())
@@ -149,15 +139,39 @@ class FlowBoxWindow(Gtk.Window):
                 appinfo.launch([image_file], None)
         dialog.destroy()
 
-def show_notification(summary, body=None, icon=None):
-    n = notify2.Notification(summary, body, icon)
-    n.show()
+class PresentorApplication(Gtk.Application):
+    def __init__(self):
+        Gtk.Application.__init__(self, application_id=APP_ID, flags=Gio.ApplicationFlags.HANDLES_OPEN)
+        self.connect("startup", self.on_startup)
+        self.connect("activate",self.on_activate)
+        self.connect("open",self.on_open)
+        self.connect("shutdown",self.on_shutdown)
 
-notify2.init("Fotostudio Schaal")
+    def on_startup(self, data=None):
+        notify2.init("Fotostudio Schaal")
+        self.win = FlowBoxWindow()
+        self.add_window(self.win)
 
-if len(sys.argv) == 2:
-    win = FlowBoxWindow(sys.argv[1])
-else:
-    win = FlowBoxWindow()
+    def on_activate(self, data=None):
+        self.win.show_all()
 
-Gtk.main()
+    def on_open(self, app, files, hint, data=None):
+        self.win._load_images(files[0])
+        self.win.show_all()
+
+    def on_shutdown(self, app, data=None):
+        try:
+            subprocess.check_call(["udisksctl","unmount","--block-device",PARTITION])
+            self.show_notification("Speicherkarte wurde gesichert","Sie können die Speicherkarte nun sicher entfernen","dialog-information")
+        except CalledProcessError as e:
+            self.show_notification("Speicherkarte konnte nicht sicher entfernt werden", "Bitte entfernen Sie die Speicherkarte, bevor Sie sie entnehmen", "dialog-error")
+        finally:
+            os.sync()
+
+    def show_notification(self, summary, body=None, icon=None):
+        n = notify2.Notification(summary, body, icon)
+        n.show()
+
+if __name__ == "__main__":
+    app = PresentorApplication()
+    app.run(sys.argv)
