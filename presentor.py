@@ -116,7 +116,6 @@ class FlowBoxWindow(Gtk.Window):
     def _cleanup(self, widget=None, event=None):
         try:
             subprocess.check_call(["udisksctl","unmount","--block-device","/dev/sdb1"])
-            subprocess.check_call(["udisksctl","power-off","--block-device","/dev/sdb"])
             show_notification("Speicherkarte wurde gesichert","Sie können die Speicherkarte nun sicher entfernen","dialog-information")
         except CalledProcessError as e:
             show_notification("Speicherkarte konnte nicht sicher entfernt werden", "Bitte entfernen Sie die Speicherkarte, bevor Sie sie entnehmen", "dialog-error")
