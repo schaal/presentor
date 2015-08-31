@@ -2,18 +2,21 @@
 
 import os,sys,subprocess,notify2
 from subprocess import CalledProcessError
-from gi.repository import Gtk, GdkPixbuf, Gio, Gdk
+from gi.repository import Gtk, GdkPixbuf, Gio, Gdk, GLib
 
 APP_ID = "de.fotoschaal.presentor"
 
 SIZE = 500
 MAX_IMAGE_COUNT = 100
-PARTITION = '/dev/sda1'
 
 class ImageBox(Gtk.Box):
     def _set_image_callback(self, source_object, res):
-        pixbuf = GdkPixbuf.Pixbuf.new_from_stream_finish(res).apply_embedded_orientation()
-        self.image_widget.set_from_pixbuf(pixbuf)
+        try:
+            pixbuf = GdkPixbuf.Pixbuf.new_from_stream_finish(res).apply_embedded_orientation()
+            self.image_widget.set_from_pixbuf(pixbuf)
+        except GLib.Error as e:
+            #TODO: show error
+            pass
 
     def __init__(self, image_path):
         Gtk.Box.__init__(self)
@@ -159,10 +162,11 @@ class PresentorApplication(Gtk.Application):
 
     def on_shutdown(self, app, data=None):
         try:
-            subprocess.check_call(["udisksctl","unmount","--block-device",PARTITION])
-            self.show_notification("Speicherkarte wurde gesichert","Sie können die Speicherkarte nun sicher entfernen","dialog-information")
+            mount_point = self.win.choose_folder.get_file().find_enclosing_mount().get_default_location().get_path()
+            subprocess.check_call(["umount",mount_point])
+            self.show_notification("Speicherkarte wurde gesichert","Sie können die Speicherkarte nun entfernen","dialog-information")
         except CalledProcessError as e:
-            self.show_notification("Speicherkarte konnte nicht sicher entfernt werden", "Bitte entfernen Sie die Speicherkarte, bevor Sie sie entnehmen", "dialog-error")
+            self.show_notification("Speicherkarte konnte nicht sicher entfernt werden", "", "dialog-error")
         finally:
             os.sync()
 
