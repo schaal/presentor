@@ -1,4 +1,5 @@
-from gi.repository import Gtk, Gio, GdkPixbuf
+from gi.repository import Gtk, Gio
+from gi.repository.GdkPixbuf import PixbufRotation
 
 from imagebox import ImageBox, ImageFlowBox
 
@@ -23,8 +24,8 @@ class FlowBoxWindow(Gtk.ApplicationWindow):
         actionbar.pack_start(rotate_right)
         actionbar.pack_start(self.choose_folder)
 
-        rotate_left.connect('clicked',self.flowbox.on_rotate_clicked,GdkPixbuf.PixbufRotation.COUNTERCLOCKWISE)
-        rotate_right.connect('clicked',self.flowbox.on_rotate_clicked,GdkPixbuf.PixbufRotation.CLOCKWISE)
+        rotate_left.connect('clicked', self.flowbox.on_rotate_clicked, PixbufRotation.COUNTERCLOCKWISE)
+        rotate_right.connect('clicked', self.flowbox.on_rotate_clicked, PixbufRotation.CLOCKWISE)
         self.flowbox.connect('child_activated',self.on_item_activated)
         self.choose_folder.connect('file-set', self.on_file_set)
 

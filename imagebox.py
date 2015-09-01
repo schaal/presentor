@@ -1,4 +1,6 @@
-from gi.repository import Gtk, GdkPixbuf, Gdk, GLib
+from gi.repository import Gtk, GdkPixbuf, GLib
+
+from gi.repository.Gdk import KEY_q, KEY_w, KEY_Escape
 
 class ImageBox(Gtk.Box):
     def _set_image_callback(self, source_object, res):
@@ -44,11 +46,11 @@ class ImageFlowBox(Gtk.FlowBox):
             image.set_from_pixbuf(rotated)
 
     def handle_key_release(self, widget, event, window):
-        if event.keyval == Gdk.KEY_q:
+        if event.keyval == KEY_q:
             self.on_rotate_clicked(None, GdkPixbuf.PixbufRotation.COUNTERCLOCKWISE)
-        elif event.keyval == Gdk.KEY_w:
+        elif event.keyval == KEY_w:
             self.on_rotate_clicked(None, GdkPixbuf.PixbufRotation.CLOCKWISE)
-        elif event.keyval == Gdk.KEY_Escape:
+        elif event.keyval == KEY_Escape:
             window.get_application().quit()
 
     def clear(self):
