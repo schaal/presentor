@@ -2,10 +2,9 @@
 
 import os, sys, subprocess, notify2
 
-from subprocess import CalledProcessError
-
 from gi.repository import Gtk, Gio
 from gi.repository.GLib import Error
+from gi.repository.GObject import threads_init
 
 from flowboxwindow import FlowBoxWindow
 
@@ -41,7 +40,7 @@ class PresentorApplication(Gtk.Application):
                 mount_point = folder.find_enclosing_mount().get_default_location().get_path()
                 subprocess.check_call(["umount",mount_point])
                 self.show_notification("Speicherkarte wurde gesichert","Sie können die Speicherkarte nun entfernen","dialog-information")
-        except CalledProcessError as e:
+        except subprocess.CalledProcessError as e:
             self.show_notification("Speicherkarte konnte nicht sicher entfernt werden", "", "dialog-error")
         except Error as e:
             pass
@@ -53,5 +52,6 @@ class PresentorApplication(Gtk.Application):
         n.show()
 
 if __name__ == "__main__":
+    threads_init()
     app = PresentorApplication()
     app.run(sys.argv)

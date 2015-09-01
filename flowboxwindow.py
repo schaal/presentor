@@ -1,6 +1,8 @@
 import os
 
-from gi.repository import Gtk
+from threading import Thread
+
+from gi.repository import Gtk, GLib
 
 from gi.repository.GdkPixbuf import PixbufRotation
 from gi.repository.Gio import app_info_get_default_for_type
@@ -65,22 +67,28 @@ class FlowBoxWindow(Gtk.ApplicationWindow):
 
     def _load_images(self, path):
         self.set_loading(True)
-
         self.flowbox.clear()
         self.choose_folder.set_file(path)
-        self._load_images_loop(path)
+        Thread(target=self._load_images_thread, args=(path,)).start()
+
+    def _load_images_finished(self):
         self.flowbox.show_all()
 
         self.set_loading(False)
 
-    def _load_images_loop(self, path):
+    def _insert_imagebox(self, image_path):
+        imagebox = ImageBox(image_path, self.image_size)
+        self.flowbox.add(imagebox)
+        imagebox.show_all()
+
+    def _load_images_thread(self, path):
         image_count = 0
         for root, dirnames, filenames in os.walk(path.get_path()):
             for image_path in [os.path.join(root,filename) for filename in filenames if filename.lower().endswith(".jpg")]:
-                imagebox = ImageBox(image_path, self.image_size)
-                self.flowbox.add(imagebox)
+                GLib.idle_add(self._insert_imagebox,image_path)
                 image_count += 1
                 if image_count >= self.max_image_count:
+                    GLib.idle_add(self.set_loading, False)
                     return
 
     def on_file_set(self, choose_folder):
