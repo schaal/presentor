@@ -46,10 +46,11 @@ class ImageFlowBox(Gtk.FlowBox):
         self.set_activate_on_single_click(False)
 
     def on_rotate_clicked(self, button, direction):
-        image = self.get_selected_children()[0].get_child().get_center_widget()
-        pixbuf = image.get_pixbuf()
-        rotated = pixbuf.rotate_simple(direction)
-        image.set_from_pixbuf(rotated)
+        if self.get_selected_children():
+            image = self.get_selected_children()[0].get_child().get_center_widget()
+            pixbuf = image.get_pixbuf()
+            rotated = pixbuf.rotate_simple(direction)
+            image.set_from_pixbuf(rotated)
 
     def handle_key_release(self, widget, event, window):
         if event.keyval == Gdk.KEY_q:
