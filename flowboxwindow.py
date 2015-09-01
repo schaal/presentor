@@ -40,18 +40,36 @@ class FlowBoxWindow(Gtk.ApplicationWindow):
 
         scrolled.add(self.flowbox)
 
-        mainbox.pack_start(scrolled, True, True, 0)
+        self.loading_stack = Gtk.Stack.new()
+        self.loading_stack.set_transition_type(Gtk.StackTransitionType.CROSSFADE)
+
+        loading_image = Gtk.Image.new_from_file("logo.svg")
+
+        self.loading_stack.add_named(loading_image, "loading")
+        self.loading_stack.add_named(scrolled, "imagebox")
+
+        mainbox.pack_start(self.loading_stack, True, True, 0)
         mainbox.pack_end(actionbar, False, True, 0)
 
         self.add(mainbox)
         self.flowbox.grab_focus()
         #self.show_all()
 
+    def set_loading(self,loading):
+        if loading:
+            self.loading_stack.set_visible_child_name("loading")
+        else:
+            self.loading_stack.set_visible_child_name("imagebox")
+
     def _load_images(self, path):
+        self.set_loading(True)
+
         self.flowbox.clear()
         self.choose_folder.set_file(path)
         self._load_images_loop(path)
         self.flowbox.show_all()
+
+        self.set_loading(False)
 
     def _load_images_loop(self, path):
         image_count = 0

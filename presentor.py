@@ -31,8 +31,8 @@ class PresentorApplication(Gtk.Application):
         self.win.show_all()
 
     def on_open(self, app, files, hint, data=None):
-        self.win._load_images(files[0])
         self.win.show_all()
+        self.win._load_images(files[0])
 
     def on_shutdown(self, app, data=None):
         try:
