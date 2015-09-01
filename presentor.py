@@ -33,9 +33,11 @@ class PresentorApplication(Gtk.Application):
 
     def on_shutdown(self, app, data=None):
         try:
-            mount_point = self.win.choose_folder.get_file().find_enclosing_mount().get_default_location().get_path()
-            subprocess.check_call(["umount",mount_point])
-            self.show_notification("Speicherkarte wurde gesichert","Sie können die Speicherkarte nun entfernen","dialog-information")
+            folder = self.win.choose_folder.get_file()
+            if folder is not None:
+                mount_point = folder.find_enclosing_mount().get_default_location().get_path()
+                subprocess.check_call(["umount",mount_point])
+                self.show_notification("Speicherkarte wurde gesichert","Sie können die Speicherkarte nun entfernen","dialog-information")
         except CalledProcessError as e:
             self.show_notification("Speicherkarte konnte nicht sicher entfernt werden", "", "dialog-error")
         finally:
