@@ -10,8 +10,9 @@ class ImageBox(Gtk.Box):
             pixbuf = Pixbuf.new_from_stream_finish(res).apply_embedded_orientation()
             self.image_widget.set_from_pixbuf(pixbuf)
         except Error as e:
-            #TODO: show error
-            pass
+            self.image_widget.set_from_icon_name('dialog-error', Gtk.IconSize.DIALOG)
+            self.image_widget.set_size_request(-1,-1)
+            self.image_label.set_markup("{0}\n<b>{1}</b>".format(self.image_label.get_label(),e.message))
 
     def __init__(self, image_path, image_size):
         Gtk.Box.__init__(self)
@@ -23,13 +24,13 @@ class ImageBox(Gtk.Box):
         self.image_file = Gio.File.new_for_path(image_path)
         self.image_widget = Gtk.Image.new()
 
-        image_label = Gtk.Label()
-        image_label.set_text(self.image_file.get_basename())
+        self.image_label = Gtk.Label.new(self.image_file.get_basename())
+        self.image_label.set_justify(Gtk.Justification.CENTER)
 
         Pixbuf.new_from_stream_at_scale_async(self.image_file.read(), image_size, image_size,True,None,self._set_image_callback)
 
         self.set_center_widget(self.image_widget)
-        self.pack_end(image_label, True, True, 0)
+        self.pack_end(self.image_label, True, True, 0)
 
 class ImageFlowBox(Gtk.FlowBox):
     def __init__(self):
