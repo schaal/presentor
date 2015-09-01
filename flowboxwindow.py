@@ -1,11 +1,16 @@
+import os
+
 from gi.repository import Gtk, Gio
 from gi.repository.GdkPixbuf import PixbufRotation
 
 from imagebox import ImageBox, ImageFlowBox
 
 class FlowBoxWindow(Gtk.ApplicationWindow):
-    def __init__(self, application):
+    def __init__(self, application, image_size, max_image_count):
         Gtk.ApplicationWindow.__init__(self, application=application, title="Fotostudio Schaal", type=Gtk.WindowType.TOPLEVEL)
+
+        self.image_size = image_size
+        self.max_image_count = max_image_count
 
         self.maximize()
 
@@ -50,10 +55,10 @@ class FlowBoxWindow(Gtk.ApplicationWindow):
         image_count = 0
         for root, dirnames, filenames in os.walk(path.get_path()):
             for image_path in [os.path.join(root,filename) for filename in filenames if filename.lower().endswith(".jpg")]:
-                imagebox = ImageBox(image_path)
+                imagebox = ImageBox(image_path, self.image_size)
                 self.flowbox.add(imagebox)
                 image_count += 1
-                if image_count >= MAX_IMAGE_COUNT:
+                if image_count >= self.max_image_count:
                     return
 
     def on_file_set(self, choose_folder):

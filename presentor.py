@@ -1,8 +1,11 @@
 #!/usr/bin/python3
 
-import os,sys,subprocess,notify2
+import os, sys, subprocess, notify2
+
 from subprocess import CalledProcessError
+
 from gi.repository import Gtk, Gio
+from gi.repository.GLib import Error
 
 from flowboxwindow import FlowBoxWindow
 
@@ -21,7 +24,7 @@ class PresentorApplication(Gtk.Application):
 
     def on_startup(self, data=None):
         notify2.init("Fotostudio Schaal")
-        self.win = FlowBoxWindow(self)
+        self.win = FlowBoxWindow(self, SIZE, MAX_IMAGE_COUNT)
         self.add_window(self.win)
 
     def on_activate(self, data=None):
@@ -40,6 +43,8 @@ class PresentorApplication(Gtk.Application):
                 self.show_notification("Speicherkarte wurde gesichert","Sie können die Speicherkarte nun entfernen","dialog-information")
         except CalledProcessError as e:
             self.show_notification("Speicherkarte konnte nicht sicher entfernt werden", "", "dialog-error")
+        except Error as e:
+            pass
         finally:
             os.sync()
 

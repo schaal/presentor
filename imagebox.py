@@ -1,22 +1,23 @@
-from gi.repository import Gtk, GdkPixbuf, GLib
+from gi.repository import Gtk, GdkPixbuf, GLib, Gio
 
 from gi.repository.Gdk import KEY_q, KEY_w, KEY_Escape
+from gi.repository.GLib import Error
 
 class ImageBox(Gtk.Box):
     def _set_image_callback(self, source_object, res):
         try:
             pixbuf = GdkPixbuf.Pixbuf.new_from_stream_finish(res).apply_embedded_orientation()
             self.image_widget.set_from_pixbuf(pixbuf)
-        except GLib.Error as e:
+        except Error as e:
             #TODO: show error
             pass
 
-    def __init__(self, image_path):
+    def __init__(self, image_path, image_size):
         Gtk.Box.__init__(self)
 
         self.set_orientation(Gtk.Orientation.VERTICAL)
         self.set_spacing(5)
-        self.set_size_request(SIZE,SIZE)
+        self.set_size_request(image_size, image_size)
 
         self.image_file = Gio.File.new_for_path(image_path)
         self.image_widget = Gtk.Image.new()
@@ -24,7 +25,7 @@ class ImageBox(Gtk.Box):
         image_label = Gtk.Label()
         image_label.set_text(self.image_file.get_basename())
 
-        GdkPixbuf.Pixbuf.new_from_stream_at_scale_async(self.image_file.read(),SIZE,SIZE,True,None,self._set_image_callback)
+        GdkPixbuf.Pixbuf.new_from_stream_at_scale_async(self.image_file.read(), image_size, image_size,True,None,self._set_image_callback)
 
         self.set_center_widget(self.image_widget)
         self.pack_end(image_label, True, True, 0)
