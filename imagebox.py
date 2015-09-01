@@ -31,8 +31,16 @@ class ImageBox(Gtk.Box):
         self.pack_end(self.image_label, True, True, 0)
 
 class ImageFlowBox(Gtk.FlowBox):
-    def __init__(self):
-        Gtk.FlowBox.__init__(self, valign=Gtk.Align.START, max_children_per_line=30, activate_on_single_click=False,selection_mode=Gtk.SelectionMode.SINGLE)
+    def __init__(self, accel):
+        Gtk.FlowBox.__init__(self, valign=Gtk.Align.START, max_children_per_line=5, activate_on_single_click=False,selection_mode=Gtk.SelectionMode.SINGLE)
+        accel.connect(KEY_q, 0, 0, self._on_accel_activated)
+        accel.connect(KEY_w, 0, 0, self._on_accel_activated)
+
+    def _on_accel_activated(self, accel_group, acceleratable, keyval, modifier):
+        if keyval == KEY_q:
+            self.on_rotate_clicked(None, PixbufRotation.COUNTERCLOCKWISE)
+        elif keyval == KEY_w:
+            self.on_rotate_clicked(None, PixbufRotation.CLOCKWISE)
 
     def on_rotate_clicked(self, button, direction):
         if self.get_selected_children():
@@ -40,14 +48,6 @@ class ImageFlowBox(Gtk.FlowBox):
             pixbuf = image.get_pixbuf()
             rotated = pixbuf.rotate_simple(direction)
             image.set_from_pixbuf(rotated)
-
-    def handle_key_release(self, widget, event, window):
-        if event.keyval == KEY_q:
-            self.on_rotate_clicked(None, PixbufRotation.COUNTERCLOCKWISE)
-        elif event.keyval == KEY_w:
-            self.on_rotate_clicked(None, PixbufRotation.CLOCKWISE)
-        elif event.keyval == KEY_Escape:
-            window.get_application().quit()
 
     def clear(self):
         self.foreach(self.remove)

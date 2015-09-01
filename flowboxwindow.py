@@ -4,7 +4,7 @@ from gi.repository import Gtk
 
 from gi.repository.GdkPixbuf import PixbufRotation
 from gi.repository.Gio import app_info_get_default_for_type
-
+from gi.repository.Gdk import KEY_Escape, ModifierType
 from imagebox import ImageBox, ImageFlowBox
 
 class FlowBoxWindow(Gtk.ApplicationWindow):
@@ -16,10 +16,14 @@ class FlowBoxWindow(Gtk.ApplicationWindow):
 
         self.maximize()
 
+        accel = Gtk.AccelGroup()
+        accel.connect(KEY_Escape, 0, 0, self.on_quit_requested)
+        self.add_accel_group(accel)
+
         scrolled = Gtk.ScrolledWindow(hscrollbar_policy=Gtk.PolicyType.NEVER, vscrollbar_policy=Gtk.PolicyType.AUTOMATIC)
 
         mainbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=5)
-        self.flowbox = ImageFlowBox()
+        self.flowbox = ImageFlowBox(accel)
         actionbar = Gtk.ActionBar()
 
         rotate_left = Gtk.Button.new_from_icon_name('object-rotate-left',Gtk.IconSize.BUTTON)
@@ -35,8 +39,6 @@ class FlowBoxWindow(Gtk.ApplicationWindow):
         self.flowbox.connect('child_activated',self.on_item_activated)
         self.choose_folder.connect('file-set', self.on_file_set)
 
-        self.connect("key-release-event", self.flowbox.handle_key_release, self)
-
         scrolled.add(self.flowbox)
 
         self.loading_stack = Gtk.Stack(transition_type=Gtk.StackTransitionType.CROSSFADE)
@@ -51,7 +53,9 @@ class FlowBoxWindow(Gtk.ApplicationWindow):
 
         self.add(mainbox)
         self.flowbox.grab_focus()
-        #self.show_all()
+
+    def on_quit_requested(self, *args):
+        self.get_application().quit()
 
     def set_loading(self,loading):
         if loading:
