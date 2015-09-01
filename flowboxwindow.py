@@ -1,7 +1,9 @@
 import os
 
-from gi.repository import Gtk, Gio
+from gi.repository import Gtk
+
 from gi.repository.GdkPixbuf import PixbufRotation
+from gi.repository.Gio import app_info_get_default_for_type
 
 from imagebox import ImageBox, ImageFlowBox
 
@@ -74,7 +76,7 @@ class FlowBoxWindow(Gtk.ApplicationWindow):
 
         content_type = widget.get_content_type()
 
-        default_app_info = Gio.app_info_get_default_for_type(content_type, False)
+        default_app_info = app_info_get_default_for_type(content_type, False)
 
         if default_app_info is not None:
             default_app_info.launch([image_file], None)
