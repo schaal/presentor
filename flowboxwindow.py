@@ -1,6 +1,6 @@
 import os
 
-from threading import Thread
+from threading import Thread, Lock
 
 from gi.repository import Gtk, GLib
 
@@ -16,6 +16,8 @@ class FlowBoxWindow(Gtk.ApplicationWindow):
         self.image_size = image_size
         self.max_image_count = max_image_count
 
+        self.quit_requested = False
+        self.lock = Lock()
         self.maximize()
 
         accel = Gtk.AccelGroup()
@@ -57,42 +59,43 @@ class FlowBoxWindow(Gtk.ApplicationWindow):
         self.flowbox.grab_focus()
 
     def on_quit_requested(self, *args):
+        self.quit_requested = True
         self.get_application().quit()
 
     def set_loading(self,loading):
+        self.choose_folder.set_sensitive(not loading)
         if loading:
             self.loading_stack.set_visible_child_name("loading")
         else:
             self.loading_stack.set_visible_child_name("imagebox")
 
-    def _load_images(self, path):
+    def load_images(self, path):
         self.set_loading(True)
         self.flowbox.clear()
         self.choose_folder.set_file(path)
-        Thread(target=self._load_images_thread, args=(path,)).start()
-
-    def _load_images_finished(self):
-        self.flowbox.show_all()
-
-        self.set_loading(False)
+        Thread(target=self._load_images_thread, args=(path,self.lock)).start()
 
     def _insert_imagebox(self, image_path):
         imagebox = ImageBox(image_path, self.image_size)
         self.flowbox.add(imagebox)
         imagebox.show_all()
 
-    def _load_images_thread(self, path):
-        image_count = 0
-        for root, dirnames, filenames in os.walk(path.get_path()):
-            for image_path in [os.path.join(root,filename) for filename in filenames if filename.lower().endswith(".jpg")]:
-                GLib.idle_add(self._insert_imagebox,image_path)
-                image_count += 1
-                if image_count >= self.max_image_count:
-                    GLib.idle_add(self.set_loading, False)
-                    return
+    def _load_images_thread(self, path, lock):
+        with lock:
+            try:
+                image_count = 0
+                for root, dirnames, filenames in os.walk(path.get_path()):
+                    for image_path in [os.path.join(root,filename) for filename in filenames if filename.lower().endswith(".jpg")]:
+                        GLib.idle_add(self._insert_imagebox,image_path)
+                        image_count += 1
+                        if image_count >= self.max_image_count or self.quit_requested:
+                            return
+            finally:
+                GLib.idle_add(self.set_loading, False)
+
 
     def on_file_set(self, choose_folder):
-        self._load_images(choose_folder.get_file())
+        self.load_images(choose_folder.get_file())
 
     def on_item_activated(self, flowbox, child):
         image_file = child.get_child().image_file
