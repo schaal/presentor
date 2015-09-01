@@ -16,16 +16,15 @@ class FlowBoxWindow(Gtk.ApplicationWindow):
 
         self.maximize()
 
-        scrolled = Gtk.ScrolledWindow()
-        scrolled.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
+        scrolled = Gtk.ScrolledWindow(hscrollbar_policy=Gtk.PolicyType.NEVER, vscrollbar_policy=Gtk.PolicyType.AUTOMATIC)
 
-        mainbox = Gtk.Box.new(Gtk.Orientation.VERTICAL, 5)
+        mainbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=5)
         self.flowbox = ImageFlowBox()
-        actionbar = Gtk.ActionBar.new()
+        actionbar = Gtk.ActionBar()
 
         rotate_left = Gtk.Button.new_from_icon_name('object-rotate-left',Gtk.IconSize.BUTTON)
         rotate_right = Gtk.Button.new_from_icon_name('object-rotate-right',Gtk.IconSize.BUTTON)
-        self.choose_folder = Gtk.FileChooserButton.new('Ordner auswählen', Gtk.FileChooserAction.SELECT_FOLDER)
+        self.choose_folder = Gtk.FileChooserButton(title='Ordner auswählen', action=Gtk.FileChooserAction.SELECT_FOLDER)
 
         actionbar.pack_start(rotate_left)
         actionbar.pack_start(rotate_right)
@@ -40,8 +39,7 @@ class FlowBoxWindow(Gtk.ApplicationWindow):
 
         scrolled.add(self.flowbox)
 
-        self.loading_stack = Gtk.Stack.new()
-        self.loading_stack.set_transition_type(Gtk.StackTransitionType.CROSSFADE)
+        self.loading_stack = Gtk.Stack(transition_type=Gtk.StackTransitionType.CROSSFADE)
 
         loading_image = Gtk.Image.new_from_file("logo.svg")
 
@@ -87,7 +85,7 @@ class FlowBoxWindow(Gtk.ApplicationWindow):
     def on_item_activated(self, flowbox, child):
         image_file = child.get_child().image_file
 
-        dialog = Gtk.AppChooserDialog.new(self,Gtk.DialogFlags.MODAL,image_file)
+        dialog = Gtk.AppChooserDialog(parent=self, flags=Gtk.DialogFlags.MODAL, gfile=image_file)
 
         widget = dialog.get_widget()
         widget.set_show_default(True)

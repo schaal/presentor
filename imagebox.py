@@ -15,17 +15,14 @@ class ImageBox(Gtk.Box):
             self.image_label.set_markup("{0}\n<b>{1}</b>".format(self.image_label.get_label(),e.message))
 
     def __init__(self, image_path, image_size):
-        Gtk.Box.__init__(self)
+        Gtk.Box.__init__(self, orientation=Gtk.Orientation.VERTICAL, spacing=5)
 
-        self.set_orientation(Gtk.Orientation.VERTICAL)
-        self.set_spacing(5)
         self.set_size_request(image_size, image_size)
 
         self.image_file = Gio.File.new_for_path(image_path)
-        self.image_widget = Gtk.Image.new()
+        self.image_widget = Gtk.Image()
 
-        self.image_label = Gtk.Label.new(self.image_file.get_basename())
-        self.image_label.set_justify(Gtk.Justification.CENTER)
+        self.image_label = Gtk.Label(label=self.image_file.get_basename(), justify=Gtk.Justification.CENTER)
 
         Pixbuf.new_from_stream_at_scale_async(self.image_file.read(), image_size, image_size,True,None,self._set_image_callback)
 
@@ -34,12 +31,7 @@ class ImageBox(Gtk.Box):
 
 class ImageFlowBox(Gtk.FlowBox):
     def __init__(self):
-        Gtk.FlowBox.__init__(self)
-
-        self.set_valign(Gtk.Align.START)
-        self.set_max_children_per_line(30)
-        self.set_selection_mode(Gtk.SelectionMode.SINGLE)
-        self.set_activate_on_single_click(False)
+        Gtk.FlowBox.__init__(self, valign=Gtk.Align.START, max_children_per_line=30, activate_on_single_click=False,selection_mode=Gtk.SelectionMode.SINGLE)
 
     def on_rotate_clicked(self, button, direction):
         if self.get_selected_children():
