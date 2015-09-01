@@ -9,6 +9,7 @@ class ImageBox(Gtk.Box):
         try:
             pixbuf = Pixbuf.new_from_stream_finish(res).apply_embedded_orientation()
             self.image_widget.set_from_pixbuf(pixbuf)
+            del pixbuf
         except Error as e:
             self.image_widget.set_from_icon_name('dialog-error', Gtk.IconSize.DIALOG)
             self.image_widget.set_size_request(-1,-1)
