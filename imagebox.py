@@ -13,22 +13,41 @@ class ImageBox(Gtk.Box):
         except Error as e:
             self.image_widget.set_from_icon_name('dialog-error', Gtk.IconSize.DIALOG)
             self.image_widget.set_size_request(-1,-1)
-            self.image_label.set_markup("{0}\n<b>{1}</b>".format(self.image_label.get_label(),e.message))
+            self.set_markup("{0}\n<b>{1}</b>".format(self.image_label.get_label(),e.message))
+        finally:
+            self.stack.set_visible_child_name("image")
+            self.stack.get_child_by_name("loading").destroy()
 
-    def __init__(self, image_path, image_size):
+    def set_markup(self, markup):
+        self.image_label.set_markup(markup)
+
+    def __init__(self, image_path, image_size=None, markup=None):
         Gtk.Box.__init__(self, orientation=Gtk.Orientation.VERTICAL, spacing=5)
-
-        self.set_size_request(image_size, image_size)
 
         self.image_file = Gio.File.new_for_path(image_path)
         self.image_widget = Gtk.Image()
 
         self.image_label = Gtk.Label(label=self.image_file.get_basename(), justify=Gtk.Justification.CENTER)
 
-        Pixbuf.new_from_stream_at_scale_async(self.image_file.read(), image_size, image_size,True,None,self._set_image_callback)
+        if markup is not None:
+            self.set_markup(markup)
 
-        self.set_center_widget(self.image_widget)
+        self.stack = Gtk.Stack(transition_type=Gtk.StackTransitionType.CROSSFADE)
+        spinner = Gtk.Spinner()
+        self.stack.add_named(spinner,"loading")
+        self.stack.add_named(self.image_widget,"image")
+
+        self.set_center_widget(self.stack)
         self.pack_end(self.image_label, True, True, 0)
+        spinner.show()
+        spinner.start()
+        self.stack.set_visible_child_name("loading")
+
+        if image_size is not None:
+            self.set_size_request(image_size, image_size)
+            Pixbuf.new_from_stream_at_scale_async(self.image_file.read(), image_size, image_size,True,None,self._set_image_callback)
+        else:
+            Pixbuf.new_from_stream_async(self.image_file.read(),None,self._set_image_callback)
 
 class ImageFlowBox(Gtk.FlowBox):
     def __init__(self, accel):
