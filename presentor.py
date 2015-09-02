@@ -26,7 +26,9 @@ class PresentorApplication(Gtk.Application):
         try:
             self.win = FlowBoxWindow(self, SIZE, MAX_IMAGE_COUNT)
             self.add_window(self.win)
-        except Error:
+        except Error as e:
+            print(e)
+            self.show_notification("Irgendwas ging schief", e.message, "dialog-error")
             self.quit()
 
     def on_activate(self, data=None):
