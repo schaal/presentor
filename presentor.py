@@ -23,8 +23,11 @@ class PresentorApplication(Gtk.Application):
 
     def on_startup(self, data=None):
         notify2.init("Fotostudio Schaal")
-        self.win = FlowBoxWindow(self, SIZE, MAX_IMAGE_COUNT)
-        self.add_window(self.win)
+        try:
+            self.win = FlowBoxWindow(self, SIZE, MAX_IMAGE_COUNT)
+            self.add_window(self.win)
+        except Error:
+            self.quit()
 
     def on_activate(self, data=None):
         self.win.show_all()
