@@ -47,8 +47,12 @@ class FlowBoxWindow(Gtk.ApplicationWindow):
 
         self.loading_stack = Gtk.Stack(transition_type=Gtk.StackTransitionType.CROSSFADE, transition_duration=1000)
 
-        loading_image = Gtk.Image.new_from_file("logo.svg")
-        self.set_icon_from_file("icon.svg")
+        try:
+            base_path = os.path.dirname(os.path.realpath(__file__))
+            loading_image = Gtk.Image.new_from_file(os.path.join(base_path,"logo.svg"))
+            self.set_icon_from_file(os.path.join(base_path,"icon.svg"))
+        except GLib.Error as e:
+            print(e)
 
         self.loading_stack.add_named(loading_image, "loading")
         self.loading_stack.add_named(scrolled, "imagebox")
