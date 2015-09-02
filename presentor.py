@@ -43,7 +43,7 @@ class PresentorApplication(Gtk.Application):
         except subprocess.CalledProcessError as e:
             self.show_notification("Speicherkarte konnte nicht sicher entfernt werden", "", "dialog-error")
         except Error as e:
-            pass
+            print(e)
         finally:
             os.sync()
 
