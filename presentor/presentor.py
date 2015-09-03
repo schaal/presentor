@@ -6,7 +6,7 @@ from gi.repository import Gtk, Gio
 from gi.repository.GLib import Error
 from gi.repository.GObject import threads_init
 
-from flowboxwindow import FlowBoxWindow
+from presentor.flowboxwindow import FlowBoxWindow
 
 APP_ID = "de.fotoschaal.presentor"
 
@@ -24,6 +24,7 @@ class PresentorApplication(Gtk.Application):
     def on_startup(self, data=None):
         notify2.init("Fotostudio Schaal")
         try:
+            Gtk.Window.set_default_icon_name('presentor')
             self.win = FlowBoxWindow(self, SIZE, MAX_IMAGE_COUNT)
             self.add_window(self.win)
         except Error as e:

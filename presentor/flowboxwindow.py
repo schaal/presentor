@@ -1,4 +1,5 @@
 import os
+import xdg.BaseDirectory
 
 from threading import Thread, Lock
 
@@ -7,7 +8,7 @@ from gi.repository import Gtk, GLib
 from gi.repository.GdkPixbuf import PixbufRotation
 from gi.repository.Gio import app_info_get_default_for_type, content_type_guess
 from gi.repository.Gdk import KEY_Escape, ModifierType
-from imagebox import ImageBox, ImageFlowBox
+from presentor.imagebox import ImageBox, ImageFlowBox
 
 class FlowBoxWindow(Gtk.ApplicationWindow):
     def __init__(self, application, image_size, max_image_count):
@@ -48,9 +49,7 @@ class FlowBoxWindow(Gtk.ApplicationWindow):
         self.loading_stack = Gtk.Stack(transition_type=Gtk.StackTransitionType.CROSSFADE, transition_duration=1000)
 
         try:
-            base_path = os.path.dirname(os.path.realpath(__file__))
-            loading_image = Gtk.Image.new_from_file(os.path.join(base_path,"logo.svg"))
-            self.set_icon_from_file(os.path.join(base_path,"icon.svg"))
+            loading_image = Gtk.Image.new_from_file(self._get_resource_path("logo.svg"))
         except GLib.Error as e:
             print(e)
 
@@ -62,6 +61,14 @@ class FlowBoxWindow(Gtk.ApplicationWindow):
 
         self.add(mainbox)
         self.flowbox.grab_focus()
+
+    def _get_resource_path(self, resource_name):
+        data_paths = xdg.BaseDirectory.load_data_paths(os.path.join('de.fotoschaal.presentor',resource_name))
+        data_path = None
+        for x in data_paths:
+            data_path = x
+            break
+        return data_path
 
     def on_quit_requested(self, *args):
         self.quit_requested = True
