@@ -1,0 +1,13 @@
+[Desktop Entry]
+Name=Presentor
+GenericName=Image Viewer
+GenericName[de]=Bildbetrachter
+Comment=A simple image viewer
+Comment[de]=Ein einfacher Bildbetrachter
+Exec=presentor %U
+Terminal=false
+Icon=gwenview
+Type=Application
+Categories=Graphics;Viewer;Photography;
+MimeType=inode/directory
+X-DBUS-ServiceName=de.fotoschaal.presentor

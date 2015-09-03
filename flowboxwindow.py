@@ -5,7 +5,7 @@ from threading import Thread, Lock
 from gi.repository import Gtk, GLib
 
 from gi.repository.GdkPixbuf import PixbufRotation
-from gi.repository.Gio import app_info_get_default_for_type
+from gi.repository.Gio import app_info_get_default_for_type, content_type_guess
 from gi.repository.Gdk import KEY_Escape, ModifierType
 from imagebox import ImageBox, ImageFlowBox
 
@@ -87,7 +87,7 @@ class FlowBoxWindow(Gtk.ApplicationWindow):
             try:
                 image_count = 0
                 for root, dirnames, filenames in os.walk(path.get_path()):
-                    for image_path in [os.path.join(root,filename) for filename in filenames if filename.lower().endswith(".jpg")]:
+                    for image_path in [os.path.join(root,filename) for filename in filenames if content_type_guess(filename)[0].startswith("image/")]:
                         GLib.idle_add(self._insert_imagebox,image_path)
                         image_count += 1
                         if image_count >= self.max_image_count or self.quit_requested:
