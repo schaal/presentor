@@ -56,7 +56,10 @@ class PresentorApplication(Gtk.Application):
         n = notify2.Notification(summary, body, icon)
         n.show()
 
-if __name__ == "__main__":
+def main():
     threads_init()
     app = PresentorApplication()
     app.run(sys.argv)
+
+if __name__ == "__main__":
+    main()
