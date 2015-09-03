@@ -10,4 +10,3 @@ Icon=de.fotoschaal.presentor
 Type=Application
 Categories=Graphics;Viewer;Photography;
 MimeType=inode/directory
-X-DBUS-ServiceName=de.fotoschaal.presentor

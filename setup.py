@@ -9,10 +9,8 @@ if os.access("/usr/share", os.W_OK | os.X_OK):
     desktop_path = os.path.join("/usr/share/applications")
 else:
     data_path = xdg.BaseDirectory.save_data_path("de.fotoschaal.presentor")
-    icon_paths = xdg.BaseDirectory.load_data_paths("icons")
-    for p in icon_paths:
-        icon_path = os.path.join(p,'hicolor/scalable/apps')
-        break
+    icon_path = xdg.BaseDirectory.save_data_path("icons")
+    desktop_path = xdg.BaseDirectory.save_data_path("applications")
 
 setup(
     name = "Presentor",
