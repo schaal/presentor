@@ -24,7 +24,7 @@ setup(
 
     data_files = [
         (data_path, ['data/logo.svg']),
-        (icon_path, ['data/presentor.svg']),
+        (icon_path, ['data/de.fotoschaal.presentor.svg']),
         (desktop_path, ['data/de.fotoschaal.presentor.desktop'])
     ]
 )

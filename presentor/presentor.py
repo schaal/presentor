@@ -24,7 +24,7 @@ class PresentorApplication(Gtk.Application):
     def on_startup(self, data=None):
         notify2.init("Fotostudio Schaal")
         try:
-            Gtk.Window.set_default_icon_name('presentor')
+            Gtk.Window.set_default_icon_name(APP_ID)
             self.win = FlowBoxWindow(self, SIZE, MAX_IMAGE_COUNT)
             self.add_window(self.win)
         except Error as e:
