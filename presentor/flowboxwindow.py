@@ -48,14 +48,16 @@ class FlowBoxWindow(Gtk.ApplicationWindow):
 
         scrolled.add(self.flowbox)
 
-        self.loading_stack = Gtk.Stack(transition_type=Gtk.StackTransitionType.CROSSFADE, transition_duration=1000)
+        self.loading_stack = Gtk.Stack(transition_type=Gtk.StackTransitionType.NONE)
 
         try:
-            loading_image = Gtk.Image.new_from_file(self._get_resource_path("logo.svg"))
+            logo = self._get_resource_path("logo.svg")
+            if logo is not None:
+                loading_image = Gtk.Image.new_from_file(logo)
+                self.loading_stack.add_named(loading_image, "loading")
         except GLib.Error as e:
             print(e)
 
-        self.loading_stack.add_named(loading_image, "loading")
         self.loading_stack.add_named(scrolled, "imagebox")
 
         mainbox.pack_start(self.loading_stack, True, True, 0)

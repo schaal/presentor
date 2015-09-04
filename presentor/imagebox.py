@@ -1,3 +1,5 @@
+import gc
+
 from gi.repository import Gtk, Gio
 
 from gi.repository.Gdk import KEY_q, KEY_w, KEY_Escape
@@ -9,14 +11,10 @@ class ImageBox(Gtk.Box):
         try:
             pixbuf = Pixbuf.new_from_stream_finish(res).apply_embedded_orientation()
             self.image_widget.set_from_pixbuf(pixbuf)
-            del pixbuf
         except Error as e:
             self.image_widget.set_from_icon_name('dialog-error', Gtk.IconSize.DIALOG)
             self.image_widget.set_size_request(-1,-1)
             self.set_markup("{0}\n<b>{1}</b>".format(self.image_label.get_label(),e.message))
-        finally:
-            self.stack.set_visible_child_name("image")
-            self.stack.get_child_by_name("loading").destroy()
 
     def set_markup(self, markup):
         self.image_label.set_markup(markup)
@@ -32,16 +30,8 @@ class ImageBox(Gtk.Box):
         if markup is not None:
             self.set_markup(markup)
 
-        self.stack = Gtk.Stack(transition_type=Gtk.StackTransitionType.CROSSFADE)
-        spinner = Gtk.Spinner()
-        self.stack.add_named(spinner,"loading")
-        self.stack.add_named(self.image_widget,"image")
-
-        self.set_center_widget(self.stack)
+        self.set_center_widget(self.image_widget)
         self.pack_end(self.image_label, True, True, 0)
-        spinner.show()
-        spinner.start()
-        self.stack.set_visible_child_name("loading")
 
         if image_size is not None:
             self.set_size_request(image_size, image_size)
