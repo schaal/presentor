@@ -8,11 +8,13 @@ from gi.repository import Gtk, GLib
 from gi.repository.GdkPixbuf import PixbufRotation
 from gi.repository.Gio import app_info_get_default_for_type, content_type_guess
 from gi.repository.Gdk import KEY_Escape, ModifierType
+
 from presentor.imagebox import ImageBox, ImageFlowBox
+from presentor.constants import __app_id__, __app_title__
 
 class FlowBoxWindow(Gtk.ApplicationWindow):
     def __init__(self, application, image_size, max_image_count):
-        Gtk.ApplicationWindow.__init__(self, application=application, title="Fotostudio Schaal", type=Gtk.WindowType.TOPLEVEL)
+        Gtk.ApplicationWindow.__init__(self, application=application, title=__app_title__, type=Gtk.WindowType.TOPLEVEL)
 
         self.image_size = image_size
         self.max_image_count = max_image_count
@@ -63,7 +65,7 @@ class FlowBoxWindow(Gtk.ApplicationWindow):
         self.flowbox.grab_focus()
 
     def _get_resource_path(self, resource_name):
-        data_paths = xdg.BaseDirectory.load_data_paths(os.path.join('de.fotoschaal.presentor',resource_name))
+        data_paths = xdg.BaseDirectory.load_data_paths(os.path.join(__app_id__,resource_name))
         data_path = None
         for x in data_paths:
             data_path = x

@@ -7,25 +7,21 @@ from gi.repository.GLib import Error
 from gi.repository.GObject import threads_init
 
 from presentor.flowboxwindow import FlowBoxWindow
-
-APP_ID = "de.fotoschaal.presentor"
-
-SIZE = 500
-MAX_IMAGE_COUNT = 100
+from presentor.constants import __app_id__, __app_title__, __image_size__, __max_image_count__
 
 class PresentorApplication(Gtk.Application):
     def __init__(self):
-        Gtk.Application.__init__(self, application_id=APP_ID, flags=Gio.ApplicationFlags.HANDLES_OPEN)
+        Gtk.Application.__init__(self, application_id=__app_id__, flags=Gio.ApplicationFlags.HANDLES_OPEN)
         self.connect("startup", self.on_startup)
         self.connect("activate",self.on_activate)
         self.connect("open",self.on_open)
         self.connect("shutdown",self.on_shutdown)
 
     def on_startup(self, data=None):
-        notify2.init("Fotostudio Schaal")
+        notify2.init(__app_title__)
         try:
-            Gtk.Window.set_default_icon_name(APP_ID)
-            self.win = FlowBoxWindow(self, SIZE, MAX_IMAGE_COUNT)
+            Gtk.Window.set_default_icon_name(__app_id__)
+            self.win = FlowBoxWindow(self, __image_size__, __max_image_count__)
             self.add_window(self.win)
         except Error as e:
             print(e)
