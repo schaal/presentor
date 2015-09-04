@@ -44,6 +44,7 @@ class PresentorApplication(Gtk.Application):
                 self.show_notification("Speicherkarte wurde gesichert","Sie können die Speicherkarte nun entfernen","dialog-information")
         except (subprocess.CalledProcessError, Error) as e:
             self.show_notification("Speicherkarte konnte nicht sicher entfernt werden", "", "dialog-error")
+            print(e)
         finally:
             os.sync()
 
