@@ -3,13 +3,15 @@ import xdg.BaseDirectory, os
 
 from presentor.constants import __app_id__
 
-if os.access("/usr/share", os.W_OK | os.X_OK):
-    data_path = os.path.join("/usr/share",__app_id__)
-    icon_path = os.path.join("/usr/share/icons/hicolor/scalable/apps")
-    desktop_path = os.path.join("/usr/share/applications")
+sys_share = '/usr/share'
+
+if os.access(sys_share, os.W_OK | os.X_OK):
+    data_path = os.path.join(sys_share,__app_id__)
+    icon_path = os.path.join(sys_share, "icons/hicolor/scalable/apps")
+    desktop_path = os.path.join(sys_share, "applications")
 else:
     data_path = xdg.BaseDirectory.save_data_path(__app_id__)
-    icon_path = xdg.BaseDirectory.save_data_path("icons")
+    icon_path = xdg.BaseDirectory.save_data_path("icons/hicolor/scalable/apps")
     desktop_path = xdg.BaseDirectory.save_data_path("applications")
 
 setup(
