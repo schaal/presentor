@@ -20,6 +20,10 @@ class ImageBox(Gtk.Box):
     def set_markup(self, markup):
         self.image_label.set_markup(markup)
 
+    def rotate_image(self, direction):
+        pixbuf = self.image_widget.get_pixbuf().rotate_simple(direction)
+        self.image_widget.set_from_pixbuf(pixbuf)
+
     def __init__(self, image_path, image_size=None, markup=None):
         Gtk.Box.__init__(self, orientation=Gtk.Orientation.VERTICAL, spacing=5)
 
@@ -54,10 +58,7 @@ class ImageFlowBox(Gtk.FlowBox):
 
     def on_rotate_clicked(self, button, direction):
         if self.get_selected_children():
-            image = self.get_selected_children()[0].get_child().get_center_widget()
-            pixbuf = image.get_pixbuf()
-            rotated = pixbuf.rotate_simple(direction)
-            image.set_from_pixbuf(rotated)
+            self.get_selected_children()[0].get_child().rotate_image(direction)
 
     def clear(self):
         self.foreach(self.remove)
