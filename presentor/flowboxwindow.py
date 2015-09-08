@@ -39,7 +39,7 @@ class FlowBoxWindow(Gtk.ApplicationWindow):
 
         actionbar.pack_start(rotate_left)
         actionbar.pack_start(rotate_right)
-        actionbar.pack_start(self.choose_folder)
+        actionbar.pack_end(self.choose_folder)
 
         rotate_left.connect('clicked', self.flowbox.on_rotate_clicked, PixbufRotation.COUNTERCLOCKWISE)
         rotate_right.connect('clicked', self.flowbox.on_rotate_clicked, PixbufRotation.CLOCKWISE)
