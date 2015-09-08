@@ -42,7 +42,7 @@ class ImageBox(Gtk.Box):
 
 class ImageFlowBox(Gtk.FlowBox):
     def __init__(self, accel):
-        Gtk.FlowBox.__init__(self, valign=Gtk.Align.START, max_children_per_line=5, activate_on_single_click=False,selection_mode=Gtk.SelectionMode.SINGLE)
+        Gtk.FlowBox.__init__(self, valign=Gtk.Align.FILL, halign=Gtk.Align.FILL, max_children_per_line=5, activate_on_single_click=False,selection_mode=Gtk.SelectionMode.SINGLE)
         accel.connect(KEY_q, 0, 0, self._on_accel_activated)
         accel.connect(KEY_w, 0, 0, self._on_accel_activated)
 
