@@ -1,4 +1,4 @@
-import gc
+import sys
 
 from gi.repository import Gtk, Gio
 
@@ -12,6 +12,7 @@ class ImageBox(Gtk.Box):
             pixbuf = Pixbuf.new_from_stream_finish(res).apply_embedded_orientation()
             self.image_widget.set_from_pixbuf(pixbuf)
         except Error as e:
+            print(e, file=sys.stderr)
             self.image_widget.set_from_icon_name('dialog-error', Gtk.IconSize.DIALOG)
             self.image_widget.set_size_request(-1,-1)
             self.set_markup("{0}\n<b>{1}</b>".format(self.image_label.get_label(),e.message))

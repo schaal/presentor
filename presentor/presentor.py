@@ -24,7 +24,7 @@ class PresentorApplication(Gtk.Application):
             self.win = FlowBoxWindow(self, __image_size__, __max_image_count__)
             self.add_window(self.win)
         except Error as e:
-            print(e)
+            print(e, file=sys.stderr)
             self.show_notification("Irgendwas ging schief", e.message, "dialog-error")
             self.quit()
 
@@ -44,7 +44,7 @@ class PresentorApplication(Gtk.Application):
                 self.show_notification("Speicherkarte wurde gesichert","Sie können die Speicherkarte nun entfernen","dialog-information")
         except (subprocess.CalledProcessError, Error) as e:
             self.show_notification("Speicherkarte konnte nicht sicher entfernt werden", "", "dialog-error")
-            print(e)
+            print(e, file=sys.stderr)
         finally:
             os.sync()
 

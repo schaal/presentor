@@ -1,4 +1,4 @@
-import os
+import os, sys
 import xdg.BaseDirectory
 
 from threading import Thread, Lock
@@ -56,7 +56,7 @@ class FlowBoxWindow(Gtk.ApplicationWindow):
                 loading_image = Gtk.Image.new_from_file(logo)
                 self.loading_stack.add_named(loading_image, "loading")
         except GLib.Error as e:
-            print(e)
+            print(e, file=sys.stderr)
 
         self.loading_stack.add_named(scrolled, "imagebox")
 
