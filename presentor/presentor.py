@@ -1,8 +1,8 @@
 #!/usr/bin/python3
 
-import os, sys, subprocess, notify2
+import os, sys, subprocess
 
-from gi.repository import Gtk, Gio
+from gi.repository import Gtk, Gio, Notify
 from gi.repository.GLib import Error
 from gi.repository.GObject import threads_init
 
@@ -18,7 +18,7 @@ class PresentorApplication(Gtk.Application):
         self.connect("shutdown",self.on_shutdown)
 
     def on_startup(self, data=None):
-        notify2.init(__app_title__)
+        Notify.init(__app_id__)
         try:
             Gtk.Window.set_default_icon_name(__app_id__)
             self.win = FlowBoxWindow(self, __image_size__, __max_image_count__)
@@ -50,7 +50,9 @@ class PresentorApplication(Gtk.Application):
             os.sync()
 
     def show_notification(self, summary, body=None, icon=None):
-        n = notify2.Notification(summary, body, icon)
+        n = Notify.Notification(summary=summary, body=body)
+        n.set_property("icon-name", icon)
+        n.set_app_name(__app_id__)
         n.show()
 
 def main():
