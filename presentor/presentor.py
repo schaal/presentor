@@ -23,9 +23,10 @@ class PresentorApplication(Gtk.Application):
             Gtk.Window.set_default_icon_name(__app_id__)
             self.win = FlowBoxWindow(self, __image_size__, __max_image_count__)
             self.add_window(self.win)
-        except Error as e:
+        except:
+            e = sys.exc_info()[1]
             print(e, file=sys.stderr)
-            self.show_notification("Irgendwas ging schief", e.message, "dialog-error")
+            self.show_notification("Irgendwas ging schief", str(e), "dialog-error")
             self.quit()
 
     def on_activate(self, data=None):
