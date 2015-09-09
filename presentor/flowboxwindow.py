@@ -86,25 +86,24 @@ class FlowBoxWindow(Gtk.ApplicationWindow):
         self.set_loading(True)
         self.flowbox.clear()
         self.choose_folder.set_file(path)
-        Thread(target=self._load_images_thread, args=(path,self.lock)).start()
+        self._load_images_thread(path)
 
     def _insert_imagebox(self, image_path):
         imagebox = ImageBox(image_path, self.image_size)
         self.flowbox.add(imagebox)
         imagebox.show_all()
 
-    def _load_images_thread(self, path, lock):
-        with lock:
-            try:
-                image_count = 0
-                for root, dirnames, filenames in os.walk(path.get_path()):
-                    for image_path in [os.path.join(root,filename) for filename in filenames if content_type_guess(filename)[0].startswith("image/")]:
-                        GLib.idle_add(self._insert_imagebox,image_path)
-                        image_count += 1
-                        if image_count >= self.max_image_count or self.quit_requested:
-                            return
-            finally:
-                GLib.idle_add(self.set_loading, False)
+    def _load_images_thread(self, path):
+        try:
+            image_count = 0
+            for root, dirnames, filenames in os.walk(path.get_path()):
+                for image_path in [os.path.join(root,filename) for filename in filenames if content_type_guess(filename)[0].startswith("image/")]:
+                    self._insert_imagebox(image_path)
+                    image_count += 1
+                    if image_count >= self.max_image_count or self.quit_requested:
+                        return
+        finally:
+            self.set_loading(False)
 
 
     def on_file_set(self, choose_folder):
