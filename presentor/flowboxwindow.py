@@ -1,8 +1,6 @@
 import os, sys
 import xdg.BaseDirectory
 
-from threading import Thread, Lock
-
 from gi.repository import Gtk, GLib
 
 from gi.repository.GdkPixbuf import PixbufRotation
@@ -20,7 +18,6 @@ class FlowBoxWindow(Gtk.ApplicationWindow):
         self.max_image_count = max_image_count
 
         self.quit_requested = False
-        self.lock = Lock()
         self.maximize()
 
         accel = Gtk.AccelGroup()
