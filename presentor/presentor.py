@@ -42,7 +42,7 @@ class PresentorApplication(Gtk.Application):
             if folder is not None and folder.has_prefix(Gio.File.new_for_path("/media")):
                 mount_point = folder.find_enclosing_mount().get_default_location().get_path()
                 subprocess.check_call(["umount",mount_point])
-                self.show_notification("Speicherkarte wurde gesichert","Sie können die Speicherkarte nun entfernen","dialog-information")
+                #self.show_notification("Speicherkarte wurde gesichert","Sie können die Speicherkarte nun entfernen","dialog-information")
         except (subprocess.CalledProcessError, Error) as e:
             self.show_notification("Speicherkarte konnte nicht sicher entfernt werden", "", "dialog-error")
             print(e, file=sys.stderr)
