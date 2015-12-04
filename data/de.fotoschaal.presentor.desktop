@@ -9,4 +9,4 @@ Terminal=false
 Icon=de.fotoschaal.presentor
 Type=Application
 Categories=Graphics;Viewer;Photography;
-MimeType=inode/directory
+MimeType=inode/directory;x-content/image-dcf;inode/mount-point;
