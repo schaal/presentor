@@ -94,7 +94,7 @@ class FlowBoxWindow(Gtk.ApplicationWindow):
         try:
             image_count = 0
             for root, dirnames, filenames in os.walk(path.get_path()):
-                for image_path in [os.path.join(root,filename) for filename in filenames if content_type_guess(filename)[0].startswith("image/")]:
+                for image_path in [os.path.join(root,filename) for filename in filenames if content_type_guess(filename)[0].startswith("image/jpeg")]:
                     self._insert_imagebox(image_path)
                     image_count += 1
                     if image_count >= self.max_image_count or self.quit_requested:
