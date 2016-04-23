@@ -5,7 +5,7 @@ from gi.repository import Gtk, GLib
 
 from gi.repository.GdkPixbuf import PixbufRotation
 from gi.repository.Gio import app_info_get_default_for_type, content_type_guess
-from gi.repository.Gdk import KEY_Escape, ModifierType
+from gi.repository.Gdk import KEY_Escape
 
 from presentor.imagebox import ImageBox, ImageFlowBox
 from presentor.constants import __app_id__, __app_title__
