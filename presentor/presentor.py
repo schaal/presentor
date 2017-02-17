@@ -1,6 +1,9 @@
 #!/usr/bin/python3
 
-import os, sys, subprocess, gi
+import os
+import sys
+import subprocess
+import gi
 
 gi.require_version('Gtk', '3.0')
 gi.require_version('Notify', '0.7')
@@ -10,15 +13,20 @@ from gi.repository.GLib import Error
 from gi.repository.GObject import threads_init
 
 from presentor.flowboxwindow import FlowBoxWindow
-from presentor.constants import __app_id__, __app_title__, __image_size__, __max_image_count__
+from presentor.constants import __app_id__, __image_size__, __max_image_count__
 
 class PresentorApplication(Gtk.Application):
     def __init__(self):
-        Gtk.Application.__init__(self, application_id=__app_id__, flags=Gio.ApplicationFlags.HANDLES_OPEN)
+        Gtk.Application.__init__(self,
+                                 application_id=__app_id__,
+                                 flags=Gio.ApplicationFlags.HANDLES_OPEN)
+
+        self.win = None
+
         self.connect("startup", self.on_startup)
-        self.connect("activate",self.on_activate)
-        self.connect("open",self.on_open)
-        self.connect("shutdown",self.on_shutdown)
+        self.connect("activate", self.on_activate)
+        self.connect("open", self.on_open)
+        self.connect("shutdown", self.on_shutdown)
 
     def on_startup(self, data=None):
         Notify.init(__app_id__)
@@ -44,19 +52,19 @@ class PresentorApplication(Gtk.Application):
             folder = self.win.choose_folder.get_file()
             if folder is not None and folder.has_prefix(Gio.File.new_for_path("/media")):
                 mount_point = folder.find_enclosing_mount().get_default_location().get_path()
-                subprocess.check_call(["umount",mount_point])
-                #self.show_notification("Speicherkarte wurde gesichert","Sie können die Speicherkarte nun entfernen","dialog-information")
-        except (subprocess.CalledProcessError, Error) as e:
-            self.show_notification("Speicherkarte konnte nicht sicher entfernt werden", "", "dialog-error")
-            print(e, file=sys.stderr)
+                subprocess.check_call(["umount", mount_point])
+        except (subprocess.CalledProcessError, Error) as ex: # pylint: disable=E0712
+            self.show_notification(
+                "Speicherkarte konnte nicht sicher entfernt werden", "", "dialog-error")
+            print(ex, file=sys.stderr)
         finally:
             os.sync()
 
     def show_notification(self, summary, body=None, icon=None):
-        n = Notify.Notification(summary=summary, body=body)
-        n.set_property("icon-name", icon)
-        n.set_app_name(__app_id__)
-        n.show()
+        notification = Notify.Notification(summary=summary, body=body)
+        notification.set_property("icon-name", icon)
+        notification.set_app_name(__app_id__)
+        notification.show()
 
 def main():
     threads_init()

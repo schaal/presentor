@@ -11,11 +11,11 @@ class ImageBox(Gtk.Box):
         try:
             pixbuf = Pixbuf.new_from_stream_finish(res).apply_embedded_orientation()
             self.image_widget.set_from_pixbuf(pixbuf)
-        except Error as e:
-            print(e, file=sys.stderr)
+        except Error as ex:
+            print(ex, file=sys.stderr)
             self.image_widget.set_from_icon_name('dialog-error', Gtk.IconSize.DIALOG)
-            self.set_size_request(-1,-1)
-            self.set_markup("{0}\n<b>{1}</b>".format(self.image_label.get_label(),e.message))
+            self.set_size_request(-1, -1)
+            self.set_markup("{0}\n<b>{1}</b>".format(self.image_label.get_label(), ex.message))
 
     def set_markup(self, markup):
         self.image_label.set_markup(markup)
@@ -40,13 +40,13 @@ class ImageBox(Gtk.Box):
 
         if image_size is not None:
             self.set_size_request(image_size, image_size)
-            Pixbuf.new_from_stream_at_scale_async(self.image_file.read(), image_size, image_size,True,None,self._set_image_callback)
+            Pixbuf.new_from_stream_at_scale_async(self.image_file.read(), image_size, image_size, True, None, self._set_image_callback)
         else:
-            Pixbuf.new_from_stream_async(self.image_file.read(),None,self._set_image_callback)
+            Pixbuf.new_from_stream_async(self.image_file.read(), None, self._set_image_callback)
 
 class ImageFlowBox(Gtk.FlowBox):
     def __init__(self, accel):
-        Gtk.FlowBox.__init__(self, valign=Gtk.Align.FILL, halign=Gtk.Align.FILL, max_children_per_line=5, activate_on_single_click=False,selection_mode=Gtk.SelectionMode.SINGLE)
+        Gtk.FlowBox.__init__(self, valign=Gtk.Align.FILL, halign=Gtk.Align.FILL, max_children_per_line=5, activate_on_single_click=False, selection_mode=Gtk.SelectionMode.SINGLE)
         accel.connect(KEY_q, 0, 0, self._on_accel_activated)
         accel.connect(KEY_w, 0, 0, self._on_accel_activated)
 

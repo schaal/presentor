@@ -1,4 +1,6 @@
-import os, sys
+import os
+import sys
+
 import xdg.BaseDirectory
 
 from gi.repository import Gtk, GLib
@@ -12,7 +14,10 @@ from presentor.constants import __app_id__, __app_title__
 
 class FlowBoxWindow(Gtk.ApplicationWindow):
     def __init__(self, application, image_size, max_image_count):
-        Gtk.ApplicationWindow.__init__(self, application=application, title=__app_title__, type=Gtk.WindowType.TOPLEVEL)
+        Gtk.ApplicationWindow.__init__(self,
+                                       application=application,
+                                       title=__app_title__,
+                                       type=Gtk.WindowType.TOPLEVEL)
 
         self.image_size = image_size
         self.max_image_count = max_image_count
@@ -24,23 +29,26 @@ class FlowBoxWindow(Gtk.ApplicationWindow):
         accel.connect(KEY_Escape, 0, 0, self.on_quit_requested)
         self.add_accel_group(accel)
 
-        scrolled = Gtk.ScrolledWindow(hscrollbar_policy=Gtk.PolicyType.NEVER, vscrollbar_policy=Gtk.PolicyType.AUTOMATIC)
+        scrolled = Gtk.ScrolledWindow(hscrollbar_policy=Gtk.PolicyType.NEVER,
+                                      vscrollbar_policy=Gtk.PolicyType.AUTOMATIC)
 
         mainbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=5)
         self.flowbox = ImageFlowBox(accel)
         actionbar = Gtk.ActionBar()
 
-        rotate_left = Gtk.Button.new_from_icon_name('object-rotate-left',Gtk.IconSize.BUTTON)
-        rotate_right = Gtk.Button.new_from_icon_name('object-rotate-right',Gtk.IconSize.BUTTON)
-        self.choose_folder = Gtk.FileChooserButton(title='Ordner auswählen', action=Gtk.FileChooserAction.SELECT_FOLDER)
+        rotate_left = Gtk.Button.new_from_icon_name('object-rotate-left', Gtk.IconSize.BUTTON)
+        rotate_right = Gtk.Button.new_from_icon_name('object-rotate-right', Gtk.IconSize.BUTTON)
+        self.choose_folder = Gtk.FileChooserButton(title='Ordner auswählen',
+                                                   action=Gtk.FileChooserAction.SELECT_FOLDER)
 
         actionbar.pack_start(rotate_left)
         actionbar.pack_start(rotate_right)
         actionbar.pack_end(self.choose_folder)
 
-        rotate_left.connect('clicked', self.flowbox.on_rotate_clicked, PixbufRotation.COUNTERCLOCKWISE)
+        rotate_left.connect('clicked', self.flowbox.on_rotate_clicked,
+                            PixbufRotation.COUNTERCLOCKWISE)
         rotate_right.connect('clicked', self.flowbox.on_rotate_clicked, PixbufRotation.CLOCKWISE)
-        self.flowbox.connect('child_activated',self.on_item_activated)
+        self.flowbox.connect('child_activated', self.on_item_activated)
         self.choose_folder.connect('file-set', self.on_file_set)
 
         scrolled.add(self.flowbox)
@@ -52,8 +60,8 @@ class FlowBoxWindow(Gtk.ApplicationWindow):
             if logo is not None:
                 loading_image = Gtk.Image.new_from_file(logo)
                 self.loading_stack.add_named(loading_image, "loading")
-        except GLib.Error as e:
-            print(e, file=sys.stderr)
+        except GLib.Error as ex: # pylint: disable=E0712
+            print(ex, file=sys.stderr)
 
         self.loading_stack.add_named(scrolled, "imagebox")
 
@@ -64,10 +72,10 @@ class FlowBoxWindow(Gtk.ApplicationWindow):
         self.flowbox.grab_focus()
 
     def _get_resource_path(self, resource_name):
-        data_paths = xdg.BaseDirectory.load_data_paths(os.path.join(__app_id__,resource_name))
+        data_paths = xdg.BaseDirectory.load_data_paths(os.path.join(__app_id__, resource_name))
         data_path = None
-        for x in data_paths:
-            data_path = x
+        for path in data_paths:
+            data_path = path
             break
         return data_path
 
@@ -94,7 +102,9 @@ class FlowBoxWindow(Gtk.ApplicationWindow):
         try:
             image_count = 0
             for root, dirnames, filenames in os.walk(path.get_path()):
-                for image_path in [os.path.join(root,filename) for filename in filenames if content_type_guess(filename)[0].startswith("image/jpeg")]:
+                for image_path in [os.path.join(root, filename)
+                                   for filename in filenames
+                                   if content_type_guess(filename)[0].startswith("image/jpeg")]:
                     self._insert_imagebox(image_path)
                     image_count += 1
                     if image_count >= self.max_image_count or self.quit_requested:
