@@ -1,0 +1,26 @@
+Format: http://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: presentor
+Source: <url://example.com>
+#
+# Please double check copyright with the licensecheck(1) command.
+
+Files:     .gitignore
+           Makefile
+           data/de.fotoschaal.presentor.desktop
+           presentor/__init__.py
+           presentor/constants.py
+           presentor/flowboxwindow.py
+           presentor/imagebox.py
+           presentor/presentor.py
+           setup.py
+Copyright: __NO_COPYRIGHT_NOR_LICENSE__
+License:   __NO_COPYRIGHT_NOR_LICENSE__
+
+#----------------------------------------------------------------------------
+# xml and html files (skipped):
+#         data/de.fotoschaal.presentor.svg
+#         data/logo.svg
+
+#----------------------------------------------------------------------------
+# Files marked as NO_LICENSE_TEXT_FOUND may be covered by the following
+# license/copyright files.
