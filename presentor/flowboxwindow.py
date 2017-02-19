@@ -65,6 +65,8 @@ class FlowBoxWindow(Gtk.ApplicationWindow):
 
         self.loading_stack.add_named(scrolled, "imagebox")
 
+        mainbox.set_focus_chain([self.loading_stack])
+
         mainbox.pack_start(self.loading_stack, True, True, 0)
         mainbox.pack_end(actionbar, False, True, 0)
 
@@ -111,6 +113,10 @@ class FlowBoxWindow(Gtk.ApplicationWindow):
                         return
         finally:
             self.set_loading(False)
+            first_child = self.flowbox.get_child_at_index(0)
+            if first_child is not None:
+                self.flowbox.select_child(first_child)
+                first_child.grab_focus()
 
 
     def on_file_set(self, choose_folder):
