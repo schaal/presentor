@@ -48,8 +48,11 @@ class PresentorApplication(Gtk.Application):
         self.win.load_images(files[0])
 
     def on_shutdown(self, app, data=None):
+        self.unmount()
+
+    def unmount(self, button=None):
+        folder = self.win.choose_folder.get_file()
         try:
-            folder = self.win.choose_folder.get_file()
             if folder is not None and folder.has_prefix(Gio.File.new_for_path("/media")):
                 mount_point = folder.find_enclosing_mount().get_default_location().get_path()
                 subprocess.check_call(["umount", mount_point])

@@ -38,18 +38,24 @@ class FlowBoxWindow(Gtk.ApplicationWindow):
 
         rotate_left = Gtk.Button.new_from_icon_name('object-rotate-left', Gtk.IconSize.BUTTON)
         rotate_right = Gtk.Button.new_from_icon_name('object-rotate-right', Gtk.IconSize.BUTTON)
+
+        eject = Gtk.Button.new_from_icon_name('media-eject', Gtk.IconSize.BUTTON)
+
         self.choose_folder = Gtk.FileChooserButton(title='Ordner auswählen',
                                                    action=Gtk.FileChooserAction.SELECT_FOLDER)
 
         actionbar.pack_start(rotate_left)
         actionbar.pack_start(rotate_right)
         actionbar.pack_end(self.choose_folder)
+        actionbar.pack_end(eject)
 
         rotate_left.connect('clicked', self.flowbox.on_rotate_clicked,
                             PixbufRotation.COUNTERCLOCKWISE)
         rotate_right.connect('clicked', self.flowbox.on_rotate_clicked, PixbufRotation.CLOCKWISE)
         self.flowbox.connect('child_activated', self.on_item_activated)
         self.choose_folder.connect('file-set', self.on_file_set)
+
+        eject.connect('clicked', application.unmount)
 
         scrolled.add(self.flowbox)
 
